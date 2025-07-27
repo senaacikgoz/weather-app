@@ -1,0 +1,9 @@
+# Ortam değişkeni dosyası
+.env
+
+# macOS sistem dosyaları
+.DS_Store
+
+# Python cache dosyaları
+__pycache__/
+*.pyc
