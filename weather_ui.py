@@ -9,14 +9,12 @@ import json
 from streamlit_folium import st_folium
 import folium
 
-# --- Dil ve Çeviri Tanımlamaları ---
-# Not: Bu kodun çalışması için projenizde 'translations.json' dosyası olmalıdır.
 def load_translations(lang):
     try:
         with open("translations.json", "r", encoding="utf-8") as f:
             return json.load(f)[lang]
     except FileNotFoundError:
-        # Eğer translations.json dosyası bulunamazsa, varsayılan bir dil (Türkçe) döndür
+        
         return {
             "page_title": "Hava Durumu Uygulaması", "description": "Konumunuzu girerek veya haritadan seçerek hava durumunu öğrenin.",
             "location_name": "Konum Adı", "get_weather": "Hava Durumunu Getir", "enter_location_warning": "⚠️ Lütfen bir konum adı girin.",
@@ -36,7 +34,6 @@ if 'lang' not in st.session_state:
 
 translations = load_translations(st.session_state.lang)
 
-# --- Oturum Durumu ve Tema Tanımlamaları ---
 
 load_dotenv()
 API_KEY = os.getenv("API_KEY")
@@ -67,7 +64,6 @@ THEMES = {
     }
 }
 
-# --- Yardımcı Fonksiyonlar ---
 
 def ipden_sehir_bul():
     try:
@@ -130,7 +126,6 @@ def get_icon(weather_main, is_day):
     else:
         return icon_to_base64("icon/cloudy.svg")
 
-# --- Arayüz ---
 
 st.set_page_config(page_title="☁️ " + translations["page_title"], page_icon="🌦️", layout="centered")
 active_theme = THEMES[st.session_state.theme]
@@ -155,17 +150,17 @@ h1, h3, p, strong, span, div {{ color: {active_theme['text_color']}; }}
 </style>
 """, unsafe_allow_html=True)
 
-# --- Kenar Çubuğu (Sidebar) ---
+
 with st.sidebar:
     st.title(translations["settings"])
 
-    # Dil seçimi
+
     def set_language():
         st.session_state.lang = 'en' if st.session_state.lang == 'tr' else 'tr'
 
     st.button("🇹🇷 Türkçe / 🇬🇧 English", on_click=set_language)
 
-    # Harita ile konum seçimi
+
     st.subheader(translations["select_location_map"])
     m = folium.Map(location=[41.0082, 28.9784], zoom_start=6)
     map_data = st_folium(m, height=400, use_container_width=True)
@@ -175,7 +170,6 @@ with st.sidebar:
         fetch_weather_data(lat=lat, lon=lon)
 
 
-# --- Ana İçerik ---
 st.markdown(f"<h1 style='text-align: center;'>☁️ {translations['page_title']}</h1>", unsafe_allow_html=True)
 st.markdown(f"<p style='text-align: center; color: {active_theme['secondary_text_color']}'>{translations['description']}</p>", unsafe_allow_html=True)
 
@@ -219,7 +213,7 @@ if st.session_state.weather_data and st.session_state.forecast_data:
     </div>
     """, unsafe_allow_html=True)
 
-    # Grafikler
+
     tab1, tab2, tab3 = st.tabs([f"🌡️ {translations['temperature']}", f"💧 {translations['humidity']}", f"💨 {translations['wind']}"])
 
     sonraki_tahminler = forecast_data['list'][:8]
@@ -264,7 +258,7 @@ if st.session_state.weather_data and st.session_state.forecast_data:
         ax.set_title(translations['next_24h_wind_forecast'], color=active_theme['text_color'])
         st.pyplot(fig)
 
-    # 5 Günlük Tahmin
+    
     st.markdown(f"<h3>📅 {translations['5_day_forecast']}</h3>", unsafe_allow_html=True)
     gunluk = {}
     for i in forecast_data["list"]:
